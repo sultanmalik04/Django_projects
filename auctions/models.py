@@ -6,7 +6,6 @@ class User(AbstractUser):
     def __str__(self):
         return self.username
 
-
 class Listing(models.Model):
     categries = [
         ('Home & Kitchen', 'Home & Kitchen'),
@@ -33,7 +32,12 @@ class Listing(models.Model):
 
     owner = models.ManyToManyField(User, blank=True, related_name="listings")
 
-    #status = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.title
+
+
+class Watchlist(models.Model):
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name="watchlist")
+    list_id = models.ForeignKey(Listing, on_delete=models.CASCADE)

@@ -1,7 +1,7 @@
 from django.urls import path
 
 from . import views
-from .views import CreatListingView, detailView
+from .views import CreatListingView, detailView, watchlistView, addToWatchlist
 
 
 urlpatterns = [
@@ -11,5 +11,6 @@ urlpatterns = [
     path("register", views.register, name="register"),
     path("create", CreatListingView, name="create"),
     path("detail/<int:id>", detailView, name="detail"),
-    path()
+    path("watchlist", watchlistView, name="watchlist"),
+    path("addToWatchlist/<int:id>", addToWatchlist, name="add_To_watchlist"),
 ]
