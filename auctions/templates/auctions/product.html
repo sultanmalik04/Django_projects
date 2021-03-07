@@ -1,0 +1,22 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <div class='container-fluid'>
+        <div class="card mx-auto col-md-6 col-10 mt-5">
+            <h5 class="card-title font-weight-bold text-center">{{ product.title }}</h5>
+            <img class='mx-auto img-thumbnail' src="{{ product.image_url }}" width="auto" height="auto" />
+            <div class="card-body text-center mx-auto">
+                <div class='cvp'>
+                    <p class="card-text">   
+                        {{ product.description }}
+                        Lorem ipsum dolor sit amet consectetur, adipisicing elit. Sit exercitationem tempora dolorum ratione eaque magni, nulla culpa voluptates quae. Veniam, nobis. A ad distinctio perferendis rerum quo totam, eligendi reiciendis.
+                    </p> 
+                    <div class="price">
+                        <span>Base Price:</span> ${{ product.base_price }}
+                    </div>
+                </div>
+            </div>
+            <span class="">{{ product.publish_date }}</span>
+        </div>
+    </div>
+{% endblock %}
