@@ -1,9 +1,11 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-<h2>Active Listings</h2>
 
-
+{% if not watchlist %}
+    <h1 class="justify-content-center row">Your Watchlist is empty!</h1>    
+{% endif %}
+    
 {% for list in watchlist %}
 <div class="container mt-5 mb-5">
     <div class="d-flex justify-content-center row">
@@ -32,6 +34,7 @@
                     <h6 class="text-success">Free shipping</h6>
                     <div class="d-flex flex-column mt-4">
                         <a class="btn btn-primary btn-sm" type="button" href="{% url 'detail' id=list.list_id.id %}">Details</a>
+                        <a class="btn btn-outline-primary btn-sm mt-2" type="button" href="{% url 'remove_from_watchlist' id=list.list_id.id %}">Remmove from watchlist</a>
                     </div>
                 </div>
 

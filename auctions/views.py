@@ -11,7 +11,7 @@ from .models import User, Listing, Watchlist
 def index(request):
     obj = Listing.objects.all()
     return render(request, "auctions/index.html", {
-        "listings": obj
+        "listings": obj,
     })
 
 
@@ -86,14 +86,16 @@ def CreatListingView(request):
 # Designed form --> createListing
 # stop here, to learn BOOTSTRAPE for styling
 
-
+# deatail view of specified product
 def detailView(request, id):
     obj = Listing.objects.get(id=id)
+    watchlist_obj = Watchlist.objects.filter(list_id=id)
     return render(request, "auctions/product.html", {
-        "product": obj
+        "product": obj,
+        "watchlist_object": watchlist_obj
     })
 
-
+# Add list to watchlist
 def addToWatchlist(request, id):
     current_user_id = request.user.id
     userId = User.objects.get(id = current_user_id)
@@ -105,8 +107,16 @@ def addToWatchlist(request, id):
     return HttpResponseRedirect(reverse("index"))
 
 
+# watchlist view
 def watchlistView(request):
     obj = Watchlist.objects.filter(user_id=request.user.id)
     return render(request, "auctions/watchlist.html", {
         "watchlist": obj
     })
+
+# function to remove a list from the watchlist
+def removeFromWatchList(request, id):
+    Watchlist.objects.filter(list_id=id).delete()
+    return HttpResponseRedirect(reverse("watchlist"))
+
+

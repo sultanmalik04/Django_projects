@@ -3,7 +3,7 @@
 {% block body %}
     <div class='container-fluid'>
         <div class="card mx-auto col-md-6 col-10 mt-5">
-            <h5 class="card-title font-weight-bold text-center">{{ product.title }}</h5>
+            <h5 class="card-title font-weight-bold text-center mt-4">{{ product.title }}</h5>
             <img class='mx-auto img-thumbnail' src="{{ product.image_url }}" width="auto" height="auto" />
             <div class="card-body text-center mx-auto">
                 <div class='cvp'>
@@ -15,8 +15,15 @@
                         <span>Base Price:</span> ${{ product.base_price }}
                     </div>
                 </div>
+                
+                {% if not watchlist_object %}
+                    <a class="btn btn-outline-primary btn-sm mt-2" type="button" href="{% url 'add_To_watchlist' id=product.id %}">Add to watchlist</a>
+                {% else %}
+                    <a class="btn btn-outline-primary btn-sm mt-2" type="button"
+                        href="{% url 'remove_from_watchlist' id=product.id %}">Remmove from watchlist</a>
+                {% endif %}
             </div>
-            <span class="">{{ product.publish_date }}</span>
+            <span class="">{{ product.publish_date | date:"l d M Y" }}</span>
         </div>
     </div>
 {% endblock %}
