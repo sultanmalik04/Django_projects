@@ -41,3 +41,15 @@ class Listing(models.Model):
 class Watchlist(models.Model):
     user_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name="watchlist")
     list_id = models.ForeignKey(Listing, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.list_id.title
+
+class Comments(models.Model):
+    comment = models.CharField(max_length=600)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comment")
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="comments")
+    commented_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.user.username

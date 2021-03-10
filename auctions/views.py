@@ -9,7 +9,7 @@ from .models import User, Listing, Watchlist
 
 
 def index(request):
-    obj = Listing.objects.all()
+    obj = Listing.objects.filter(is_active=1)
     return render(request, "auctions/index.html", {
         "listings": obj,
     })
@@ -89,7 +89,7 @@ def CreatListingView(request):
 # deatail view of specified product
 def detailView(request, id):
     obj = Listing.objects.get(id=id)
-    watchlist_obj = Watchlist.objects.filter(list_id=id)
+    watchlist_obj = Watchlist.objects.filter(list_id=id, user_id=request.user.id)
     return render(request, "auctions/product.html", {
         "product": obj,
         "watchlist_object": watchlist_obj
@@ -116,7 +116,7 @@ def watchlistView(request):
 
 # function to remove a list from the watchlist
 def removeFromWatchList(request, id):
-    Watchlist.objects.filter(list_id=id).delete()
+    Watchlist.objects.filter(list_id=id, user_id=request.user.id).delete()
     return HttpResponseRedirect(reverse("watchlist"))
 
 
