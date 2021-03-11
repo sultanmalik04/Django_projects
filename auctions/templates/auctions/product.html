@@ -1,6 +1,9 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
+    {% if message %}
+        <h3 class="alert alert-danger">{{ message }}</h3>
+    {% endif %}
     <div class='container-fluid'>
         <div class="card mx-auto col-md-6 col-10 mt-5">
             <h5 class="card-title font-weight-bold text-center mt-4">{{ product.title }}</h5>
@@ -16,11 +19,14 @@
                     </div>
                 </div>
                 
-                {% if not watchlist_object %}
-                    <a class="btn btn-outline-primary btn-sm mt-2" type="button" href="{% url 'add_To_watchlist' id=product.id %}">Add to watchlist</a>
-                {% else %}
+                {% if user.is_authenticated %}
+                    {% if not watchlist_object %}
+                    <a class="btn btn-outline-primary btn-sm mt-2" type="button" href="{% url 'add_To_watchlist' id=product.id %}">Add to
+                        watchlist</a>
+                    {% else %}
                     <a class="btn btn-outline-primary btn-sm mt-2" type="button"
                         href="{% url 'remove_from_watchlist' id=product.id %}">Remmove from watchlist</a>
+                    {% endif %}
                 {% endif %}
             </div>
             <span class="">{{ product.publish_date | date:"l d M Y" }}</span>
@@ -33,31 +39,37 @@
             <div class="d-flex flex-column col-md-8">
                 <div class="coment-bottom bg-white p-2 px-4">
 
-                    <div class="d-flex flex-row add-comment-section mt-4 mb-4">
-                        <img class="img-fluid img-responsive rounded-circle mr-2" src="https://t4.ftcdn.net/jpg/00/64/67/63/360_F_64676383_LdbmhiNM6Ypzb3FM4PPuFP9rHe7ri8Ju.jpg" width="38">
-                        <input type="text" class="form-control mr-3" placeholder="Add comment">
-                        <button class="btn btn-primary" type="button">Comment</button>
-                    </div>
+                    <!-- Comment Form -->
+                    <form action="{% url 'detail' id=product.id %}" method="POST">
+                        {% csrf_token %}
+                        <div class="d-flex flex-row add-comment-section mt-4 mb-4">
+                            <img class="img-fluid img-responsive rounded-circle mr-2"
+                                src="https://t4.ftcdn.net/jpg/00/64/67/63/360_F_64676383_LdbmhiNM6Ypzb3FM4PPuFP9rHe7ri8Ju.jpg" width="38">
+                            <input type="text" class="form-control mr-3" name="comment" placeholder="Add comment">
+                            <button class="btn btn-primary" type="submit">Comment</button>
+                        </div>
+                    </form>
                     
-                    <div class="commented-section mt-2">
-                        <div class="d-flex flex-row align-items-center commented-user">
-                            <h5 class="mr-2">Corey oates</h5>
-                            <span class="dot mb-1"></span>
-                            <span class="mb-1 ml-2">Date & Time</span>
-                        </div>
-                        <div class="comment-text-sm">
-                            <span>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                            </span>
-                        </div>
-                        <div class="reply-section">
-                            <div class="d-flex flex-row align-items-center voting-icons">
-                                <span class="ml-2">Number of comments</span>
-                                <span class="dot ml-2"></span>
-                                <h6 class="ml-2 mt-1">Reply</h6>
+                    <!-- comments -->
+                    
+                    {% for commnt in comments  %}
+                        <div class="commented-section mt-2">
+                            <div class="d-flex flex-row align-items-center commented-user">
+                                <h5> {{ commnt.user.username }} </h5>
+                                <span class="mb-1 ml-2"> {{ commnt.commented_date }} </span>
+                            </div>
+                            <div class="comment-text-sm">
+                                <span>
+                                    {{ commnt.comment }}
+                                </span>
+                            </div>
+                            <div class="reply-section">
+                                <div class="d-flex flex-row align-items-center voting-icons">
+                                    <h6 class="ml-2 mt-1" id="reply">Reply</h6>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
