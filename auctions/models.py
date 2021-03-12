@@ -24,18 +24,31 @@ class Listing(models.Model):
 
     category = models.CharField(choices=categries, max_length=50)
 
-    image_url = models.URLField(max_length=500)
+    image_url = models.URLField(max_length=1000)
 
     publish_date = models.DateTimeField(auto_now_add=True)
 
     closing_date = models.DateField(default=(date.today()+timedelta(15)), blank=True, editable=True)
 
-    owner = models.ManyToManyField(User, blank=True, related_name="listings")
+    listed_by = models.ManyToManyField(User, blank=True, related_name="listing")
 
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.title
+
+
+class Bid(models.Model):
+    bid_amount = models.IntegerField()
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bid")
+    
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="bid")
+    
+    bid_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.listing.title
 
 
 class Watchlist(models.Model):
@@ -44,6 +57,7 @@ class Watchlist(models.Model):
 
     def __str__(self):
         return self.list_id.title
+
 
 class Comments(models.Model):
     comment = models.CharField(max_length=600)

@@ -77,7 +77,7 @@ def CreatListingView(request):
         category = request.POST["category"]
 
         obj = Listing(title=title, description=description,
-                      base_price=base_price, image_url=image_url, category=category)
+                      base_price=base_price, image_url=image_url, category=category, listed_by=request.user)
         obj.save()
         return HttpResponseRedirect(reverse("index"))
     else:
@@ -99,6 +99,7 @@ def detailView(request, id, *argv):
         else:
             return HttpResponseRedirect(reverse("login"))
     else:
+        is_owner = False
         comment_obj = Comments.objects.filter(listing=id)
         obj = Listing.objects.get(id=id)
         if request.user.is_authenticated:
@@ -106,7 +107,7 @@ def detailView(request, id, *argv):
             return render(request, "auctions/product.html", {
                 "product": obj,
                 "watchlist_object": watchlist_obj,
-                "comments": comment_obj
+                "comments": comment_obj,
             })
         else: 
             return render(request, "auctions/product.html", {
@@ -131,6 +132,7 @@ def addToWatchlist(request, id):
 
 
 # watchlist view
+@login_required(login_url='login')
 def watchlistView(request):
     obj = Watchlist.objects.filter(user_id=request.user.id)
     return render(request, "auctions/watchlist.html", {
@@ -138,6 +140,7 @@ def watchlistView(request):
     })
 
 # function to remove a list from the watchlist
+@login_required(login_url='login')
 def removeFromWatchList(request, id):
     Watchlist.objects.filter(list_id=id, user_id=request.user.id).delete()
     return HttpResponseRedirect(reverse("watchlist"))
@@ -145,3 +148,6 @@ def removeFromWatchList(request, id):
 
 def commentView(request):
     return HttpResponse("<h1>Commnted</h1>")
+
+def close_listing(request, id):
+    return HttpResponseRedirect("Close Listing")
