@@ -24,7 +24,16 @@
                         <span>Base Price:</span> ${{ product.base_price }}
                     </div>
                 </div>
-                
+                <div>
+                    <form action="{% url 'place_bid' id=product.id %}" method="POST">
+                        {% csrf_token %}
+                        
+                        <div class="form-group mx-sm-3 mb-2 mt-2">
+                            <input autofocus class="form-control" type="text" name="bid" placeholder="Place Your Bid">
+                        </div>
+                        <input class="btn btn-primary mb-2" type="submit" value="Place Bid">
+                    </form>
+                </div>
                 {% if user.is_authenticated %}
                     {% if not watchlist_object %}
                     <a class="btn btn-outline-primary btn-sm mt-2" type="button" href="{% url 'add_To_watchlist' id=product.id %}">Add to

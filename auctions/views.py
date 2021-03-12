@@ -5,7 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from .models import User, Listing, Watchlist, Comments
+from .models import User, Listing, Watchlist, Comments, Bid
 
 
 def index(request):
@@ -15,9 +15,9 @@ def index(request):
     })
 
 
+
 def login_view(request):
     if request.method == "POST":
-
         # Attempt to sign user in
         username = request.POST["username"]
         password = request.POST["password"]
@@ -35,9 +35,11 @@ def login_view(request):
         return render(request, "auctions/login.html")
 
 
+
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("index"))
+
 
 
 def register(request):
@@ -66,6 +68,7 @@ def register(request):
     else:
         return render(request, "auctions/register.html")
 
+
 # edited code
 @login_required(login_url='login')
 def CreatListingView(request):
@@ -81,10 +84,12 @@ def CreatListingView(request):
         obj.listed_by.add(request.user.id)
         return HttpResponseRedirect(reverse("index"))
     else:
-        return render(request, "auctions/create.html")
+        return render(request, "auctions/create.html")        
 # created models --> listings
 # Designed form --> createListing
 # stop here, to learn BOOTSTRAPE for styling
+
+
 
 # deatail view of specified product
 # latest: added comment functionality, only logged in user can comment
@@ -128,7 +133,7 @@ def addToWatchlist(request, id):
     obj.user_id = userId
     obj.list_id = listingId
     obj.save()
-    return HttpResponseRedirect(reverse("index"))
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 # watchlist view
@@ -139,15 +144,21 @@ def watchlistView(request):
         "watchlist": obj
     })
 
+
 # function to remove a list from the watchlist
 @login_required(login_url='login')
 def removeFromWatchList(request, id):
     Watchlist.objects.filter(list_id=id, user_id=request.user.id).delete()
-    return HttpResponseRedirect(reverse("watchlist"))
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-
-def commentView(request):
-    return HttpResponse("<h1>Commnted</h1>")
 
 def close_listing(request, id):
-    return HttpResponse(f"<h1>Close Listing{id}</h1>")
+    return HttpResponse(f"<h1>Close Listing {id}</h1>")
+
+
+def placeBid(request, id):
+    bid= request.POST["bid"]
+    list_obj = Listing.objects.get(id=id)
+    bid_obj = Bid(bid_amount=bid, user=request.user, listing=list_obj)
+    bid_obj.save()
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
