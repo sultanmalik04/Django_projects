@@ -76,9 +76,9 @@ def CreatListingView(request):
         image_url = request.POST["image_url"]
         category = request.POST["category"]
 
-        obj = Listing(title=title, description=description,
-                      base_price=base_price, image_url=image_url, category=category, listed_by=request.user)
+        obj = Listing(title=title, description=description, base_price=base_price, image_url=image_url, category=category)
         obj.save()
+        obj.listed_by.add(request.user.id)
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "auctions/create.html")
@@ -99,7 +99,6 @@ def detailView(request, id, *argv):
         else:
             return HttpResponseRedirect(reverse("login"))
     else:
-        is_owner = False
         comment_obj = Comments.objects.filter(listing=id)
         obj = Listing.objects.get(id=id)
         if request.user.is_authenticated:
@@ -108,6 +107,7 @@ def detailView(request, id, *argv):
                 "product": obj,
                 "watchlist_object": watchlist_obj,
                 "comments": comment_obj,
+                "is_owner": obj.listed_by.all()[0] == request.user
             })
         else: 
             return render(request, "auctions/product.html", {
@@ -150,4 +150,4 @@ def commentView(request):
     return HttpResponse("<h1>Commnted</h1>")
 
 def close_listing(request, id):
-    return HttpResponseRedirect("Close Listing")
+    return HttpResponse(f"<h1>Close Listing{id}</h1>")
