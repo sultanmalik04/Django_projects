@@ -109,3 +109,7 @@ body {
     color: green;
     cursor: pointer
 }
+
+.alert-ERROR {
+    background: rgb(243, 48, 48);
+}

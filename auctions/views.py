@@ -1,6 +1,7 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
+from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
@@ -106,19 +107,18 @@ def detailView(request, id, *argv):
     else:
         comment_obj = Comments.objects.filter(listing=id)
         obj = Listing.objects.get(id=id)
-        if request.user.is_authenticated:
-            watchlist_obj = Watchlist.objects.filter(list_id=id, user_id=request.user.id)
-            return render(request, "auctions/product.html", {
+        watchlist_obj = Watchlist.objects.filter(list_id=id, user_id=request.user.id)
+        prev_bids = Bid.objects.filter(listing=obj).order_by("-bid_amount")
+        max_prev_bid = prev_bids[0].bid_amount
+        highest_bider = prev_bids[0]
+        return render(request, "auctions/product.html", {
                 "product": obj,
                 "watchlist_object": watchlist_obj,
                 "comments": comment_obj,
-                "is_owner": obj.listed_by.all()[0] == request.user
-            })
-        else: 
-            return render(request, "auctions/product.html", {
-                "product": obj,
-                "comments": comment_obj,
-                "message": "".join([arg for arg in argv])
+                "is_owner": obj.listed_by.all()[0] == request.user,
+                "is_active": obj.is_active,
+                "prev_bids": prev_bids,
+                "highest_bider": highest_bider
             })
             
 
@@ -153,12 +153,37 @@ def removeFromWatchList(request, id):
 
 
 def close_listing(request, id):
-    return HttpResponse(f"<h1>Close Listing {id}</h1>")
+    list_obj = Listing.objects.get(id=id)
+    list_obj.is_active = 0
+    list_obj.save()
+    messages.add_message(request, messages.SUCCESS, 'Listing closed successfully!')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
+@login_required(login_url='login')
 def placeBid(request, id):
     bid= request.POST["bid"]
     list_obj = Listing.objects.get(id=id)
-    bid_obj = Bid(bid_amount=bid, user=request.user, listing=list_obj)
-    bid_obj.save()
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    prev_bids = Bid.objects.filter(listing=list_obj)
+    print(prev_bids.order_by("-bid_amount")[0].bid_amount)
+    max_prev_bid = prev_bids.order_by("-bid_amount")[0].bid_amount
+    if not list_obj.is_active:
+        messages.add_message(request, messages.ERROR, 'sorry! this listing is now closed, You can not place bid on this item.')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    elif int(bid) <= int(list_obj.base_price):
+        messages.add_message(request, messages.WARNING, 'Your bid should be greater than base price.')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    elif int(bid) <= int(max_prev_bid):
+        #messages.error(request, 'Your bid is less then the highest bid')
+        messages.add_message(request, messages.INFO, 'Your bid is less then the highest bid')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:    
+        bid_obj = Bid(bid_amount=bid, user=request.user, listing=list_obj)
+        bid_obj.save()
+        #messages.success(request, 'congratulations! your bid is recorded.')
+        messages.add_message(request, messages.SUCCESS,'congratulations! your bid is recorded.')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+def categoriesView(request):
+    return render(request, "auctions/categories.html")

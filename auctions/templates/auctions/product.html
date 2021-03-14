@@ -1,15 +1,52 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    {% if message %}
-        <h3 class="alert alert-danger">{{ message }}</h3>
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="col-12 container">
+                    <div class="alert bg-{{ message.tags }} mb-5 py-4" role="alert">
+                        <div class="d-flex">
+                            <div class="px-3">
+                
+                                <h4>{{ message }}</h4>
+                                <!--
+                                    <h5 class="alert-heading">Thankyou your data has been saved!</h5>
+                                -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
     {% endif %}
-    <div class='container-fluid'>
-        <div class="card mx-auto col-md-6 col-10 mt-5">
+    
+    <!--  Announcing the winner -->
+        
+        {% if not is_active %}
+            <div class="col-12 container">
+                <div class="alert bg-success mb-5 py-4" role="alert">
+                    <div class="d-flex">
+                        <div class="px-3">
+                            Congratulations! <span class="text-uppercase font-weight-bold">{{ highest_bider.user.username }}</span> for biding <span class="font-weight-bold">${{ highest_bider.bid_amount }}</span>, It's the highest Bid. You have won the Auction.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %} 
             
-            {% if is_owner %}
-                <a class="btn btn-outline-primary btn-sm mt-2" type="button"
-                    href="{% url 'close_listing' id=product.id %}">close the Listing</a>
+
+
+
+    <div class='container-fluid'>
+        <div class="card mx-auto col-md-8 col-10 mt-5">
+            
+            {% if is_owner and is_active %}
+                <a class="btn btn-outline-primary btn-sm mt-2" type="button" href="{% url 'close_listing' id=product.id %}">close the Listing</a>
+            {% elif not is_active %}
+                <div class="text-center">
+                    <h5>This listing is now closed</h5>
+                </div>
             {% endif %}
                 
             <h5 class="card-title font-weight-bold text-center mt-4">{{ product.title }}</h5>
@@ -27,9 +64,8 @@
                 <div>
                     <form action="{% url 'place_bid' id=product.id %}" method="POST">
                         {% csrf_token %}
-                        
                         <div class="form-group mx-sm-3 mb-2 mt-2">
-                            <input autofocus class="form-control" type="text" name="bid" placeholder="Place Your Bid">
+                            <input class="form-control" type="text" name="bid" placeholder="Place Your Bid">
                         </div>
                         <input class="btn btn-primary mb-2" type="submit" value="Place Bid">
                     </form>
@@ -47,6 +83,8 @@
             <span class="">{{ product.publish_date | date:"l d M Y" }}</span>
         </div>
     </div>
+
+
 
     <!-- COMMENT SECTION -->
     <div class="container mt-5 mb-5">
@@ -115,4 +153,32 @@
             </div>
         </div>
     </div>
+
+    <!-- Bid Log -->
+    <div class="container mt-5">
+        <h1>Bid Log</h1>
+            
+        
+        <table class="table table-borderless main">
+            <thead>
+                <tr class="head">
+                    <th scope="col">Placed on</th>
+                    <th scope="col">User</th>
+                    <th scope="col">Bid Amount</th>
+                </tr>
+            </thead>
+            {% for bid in prev_bids %}
+                <tbody>
+                    <tr class="rounded bg-white">
+                        <td>{{ bid.bid_date }}</td>
+                        <td class="align-items-center">
+                            <span class="ml-2">{{ bid.user.username }}</span>
+                        </td>
+                        <td>${{ bid.bid_amount }}</td>
+                    </tr>
+                </tbody>
+            {% endfor %}
+        </table>
+    </div>
+
 {% endblock %}
