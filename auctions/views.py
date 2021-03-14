@@ -11,6 +11,7 @@ from .models import User, Listing, Watchlist, Comments, Bid
 
 def index(request):
     obj = Listing.objects.filter(is_active=1)
+
     return render(request, "auctions/index.html", {
         "listings": obj,
     })
@@ -109,8 +110,10 @@ def detailView(request, id, *argv):
         obj = Listing.objects.get(id=id)
         watchlist_obj = Watchlist.objects.filter(list_id=id, user_id=request.user.id)
         prev_bids = Bid.objects.filter(listing=obj).order_by("-bid_amount")
-        max_prev_bid = prev_bids[0].bid_amount
-        highest_bider = prev_bids[0]
+        if len(prev_bids) > 0:
+            highest_bider = prev_bids[0]
+        else:
+            highest_bider = None
         return render(request, "auctions/product.html", {
                 "product": obj,
                 "watchlist_object": watchlist_obj,
@@ -118,7 +121,9 @@ def detailView(request, id, *argv):
                 "is_owner": obj.listed_by.all()[0] == request.user,
                 "is_active": obj.is_active,
                 "prev_bids": prev_bids,
-                "highest_bider": highest_bider
+                "highest_bider": highest_bider,
+                "current_user": request.user.username,
+                "owner": obj.listed_by.all()[0]
             })
             
 
@@ -165,8 +170,10 @@ def placeBid(request, id):
     bid= request.POST["bid"]
     list_obj = Listing.objects.get(id=id)
     prev_bids = Bid.objects.filter(listing=list_obj)
-    print(prev_bids.order_by("-bid_amount")[0].bid_amount)
-    max_prev_bid = prev_bids.order_by("-bid_amount")[0].bid_amount
+    if len(prev_bids) > 0:
+        max_prev_bid = prev_bids.order_by("-bid_amount")[0].bid_amount
+    else:
+        max_prev_bid = 0
     if not list_obj.is_active:
         messages.add_message(request, messages.ERROR, 'sorry! this listing is now closed, You can not place bid on this item.')
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -186,4 +193,14 @@ def placeBid(request, id):
 
 
 def categoriesView(request):
-    return render(request, "auctions/categories.html")
+    categories = ['Home & Kitchen', 'Electronics', 'Books', 'Toys', 'Fashion', 'Antiques', 'Automobile']
+    return render(request, "auctions/categories.html", {
+        "categories": categories
+    })
+
+def categoryView(request, category):
+    list_obj = Listing.objects.filter(category=category, is_active=1)
+    return render(request, "auctions/category.html", {
+        "category": category,
+        "listings": list_obj
+    })
