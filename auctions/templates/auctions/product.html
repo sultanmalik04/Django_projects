@@ -45,7 +45,7 @@
                 <a class="btn btn-outline-primary btn-sm mt-2" type="button" href="{% url 'close_listing' id=product.id %}">close the Listing</a>
             {% elif not is_active %}
                 <div class="text-center">
-                    <h5>This listing is now closed</h5>
+                    <h5 class="alert-danger p-2">This listing is now closed</h5>
                 </div>
             {% endif %}
                 
@@ -55,7 +55,6 @@
                 <div class='cvp'>
                     <p class="card-text">   
                         {{ product.description }}
-                        Lorem ipsum dolor sit amet consectetur, adipisicing elit. Sit exercitationem tempora dolorum ratione eaque magni, nulla culpa voluptates quae. Veniam, nobis. A ad distinctio perferendis rerum quo totam, eligendi reiciendis.
                     </p> 
                     <div class="price">
                         <span>Base Price:</span> ${{ product.base_price }}
